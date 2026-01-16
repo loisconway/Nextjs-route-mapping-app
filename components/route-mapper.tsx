@@ -291,6 +291,7 @@ export default function RouteMapper() {
                       onChange={(e) => setTargetDistanceInput(e.target.value)}
                       className="h-8 text-sm"
                       min="0"
+                      max="50"
                       step="0.5"
                     />
                     <Button
@@ -334,7 +335,7 @@ export default function RouteMapper() {
                         onChange={(e) => setPaceMinutes(e.target.value)}
                         className="h-8 text-sm w-14 text-center"
                         min="0"
-                        max="59"
+                        max="15"
                       />
                       <span className="text-muted-foreground font-medium">:</span>
                       <Input
