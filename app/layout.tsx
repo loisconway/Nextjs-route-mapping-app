@@ -9,8 +9,8 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] })
 const _inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Walk Route Planner",
-  description: "Plan walking routes between two points on the map",
+  title: "Run Route Planner",
+  description: "Plan running routes between two points on the map",
   generator: "v0.app",
   icons: {
     icon: [
