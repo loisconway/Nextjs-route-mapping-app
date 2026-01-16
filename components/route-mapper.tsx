@@ -187,19 +187,19 @@ export default function RouteMapper() {
       </div>
 
       {/* Header */}
-      <div className="absolute top-4 left-4 right-16 md:left-1/2 md:-translate-x-1/2 md:right-auto md:w-auto z-[1000]">
-        <Card className="bg-card/95 backdrop-blur-sm border-border px-4 py-3 md:px-6">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center">
-              <Footprints className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="font-semibold text-foreground text-sm md:text-base">Run Route Planner</h1>
-              <p className="text-xs text-muted-foreground">{getInstructions()}</p>
-            </div>
-          </div>
-        </Card>
+ <div className="absolute top-4 left-4 right-16 md:left-1/2 md:-translate-x-1/2 md:right-auto md:w-auto z-[1000]">
+  <Card className="bg-card/95 backdrop-blur-sm border-border px-4 py-3 md:px-6 max-w-[90%] md:max-w-[400px]">
+    <div className="flex items-center gap-3">
+      <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center">
+        <Footprints className="w-5 h-5 text-primary-foreground" />
       </div>
+      <div>
+        <h1 className="font-semibold text-foreground text-sm md:text-base">Run Route Planner</h1>
+        <p className="text-xs text-muted-foreground"></p>
+      </div>
+    </div>
+  </Card>
+</div>
 
       <div className="absolute bottom-4 left-4 right-4 md:left-4 md:right-auto md:w-80 z-[1000]">
         <Card className="bg-card/95 p-4 backdrop-blur-sm border-border overflow-hidden">
