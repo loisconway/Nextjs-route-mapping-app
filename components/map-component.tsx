@@ -57,6 +57,7 @@ export default function MapComponent({
   const waypointMarkersRef = useRef<L.Marker[]>([]) // Track waypoint markers
   const tileLayerRef = useRef<L.TileLayer | null>(null) // Track the tile layer for switching themes
 
+
   // Initialize map
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return
