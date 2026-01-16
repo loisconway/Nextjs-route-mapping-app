@@ -1,22 +1,20 @@
-"use client";
+"use client"
 
-import { useEffect, useRef, useCallback } from "react";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import type { LatLng } from "./route-mapper";
+import { useEffect, useRef, useCallback } from "react"
+import L from "leaflet"
+import "leaflet/dist/leaflet.css"
+import type { LatLng } from "./route-mapper"
 
 interface MapComponentProps {
-  startPoint: LatLng | null;
-  endPoint: LatLng | null;
-  targetDistance: number | null; // Added target distance prop (in km)
-  targetPace: number | null; // Added target pace prop
-  isDarkMode: boolean; // Added isDarkMode prop
-  onMapClick: (latlng: LatLng) => void;
-  onRouteCalculated: (
-    info: { distance: string; duration: string; distanceKm: number } | null
-  ) => void;
-  isLoading: boolean;
-  setIsLoading: (loading: boolean) => void;
+  startPoint: LatLng | null
+  endPoint: LatLng | null
+  targetDistance: number | null // Added target distance prop (in km)
+  targetPace: number | null // Added target pace prop
+  isDarkMode: boolean // Added isDarkMode prop
+  onMapClick: (latlng: LatLng) => void
+  onRouteCalculated: (info: { distance: string; duration: string; distanceKm: number } | null) => void
+  isLoading: boolean
+  setIsLoading: (loading: boolean) => void
 }
 
 // Custom marker icons
@@ -35,11 +33,11 @@ const createIcon = (color: string) => {
     `,
     iconSize: [24, 24],
     iconAnchor: [12, 12],
-  });
-};
+  })
+}
 
-const startIcon = createIcon("#10b981");
-const endIcon = createIcon("#f43f5e");
+const startIcon = createIcon("#10b981")
+const endIcon = createIcon("#f43f5e")
 
 export default function MapComponent({
   startPoint,
@@ -51,77 +49,77 @@ export default function MapComponent({
   onRouteCalculated,
   setIsLoading,
 }: MapComponentProps) {
-  const mapRef = useRef<L.Map | null>(null);
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const startMarkerRef = useRef<L.Marker | null>(null);
-  const endMarkerRef = useRef<L.Marker | null>(null);
-  const routeLayerRef = useRef<L.Polyline | null>(null);
-  const waypointMarkersRef = useRef<L.Marker[]>([]); // Track waypoint markers
-  const tileLayerRef = useRef<L.TileLayer | null>(null); // Track the tile layer for switching themes
+  const mapRef = useRef<L.Map | null>(null)
+  const mapContainerRef = useRef<HTMLDivElement>(null)
+  const startMarkerRef = useRef<L.Marker | null>(null)
+  const endMarkerRef = useRef<L.Marker | null>(null)
+  const routeLayerRef = useRef<L.Polyline | null>(null)
+  const waypointMarkersRef = useRef<L.Marker[]>([]) // Track waypoint markers
+  const tileLayerRef = useRef<L.TileLayer | null>(null) // Track the tile layer for switching themes
 
   // Initialize map
   useEffect(() => {
-    if (!mapContainerRef.current || mapRef.current) return;
+    if (!mapContainerRef.current || mapRef.current) return
 
     const map = L.map(mapContainerRef.current, {
       center: [51.5074, -0.1278], // London
       zoom: 13,
       zoomControl: false,
-    });
+    })
 
     const tileUrl = isDarkMode
       ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-      : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+      : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
 
     tileLayerRef.current = L.tileLayer(tileUrl, {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
       maxZoom: 19,
-    }).addTo(map);
+    }).addTo(map)
 
-    L.control.zoom({ position: "bottomright" }).addTo(map);
+    L.control.zoom({ position: "bottomright" }).addTo(map)
 
-    mapRef.current = map;
+    mapRef.current = map
 
     return () => {
-      map.remove();
-      mapRef.current = null;
-    };
+      map.remove()
+      mapRef.current = null
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [])
 
   useEffect(() => {
-    if (!mapRef.current || !tileLayerRef.current) return;
+    if (!mapRef.current || !tileLayerRef.current) return
 
     const tileUrl = isDarkMode
       ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-      : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+      : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
 
-    tileLayerRef.current.setUrl(tileUrl);
-  }, [isDarkMode]);
+    tileLayerRef.current.setUrl(tileUrl)
+  }, [isDarkMode])
 
   // Handle map clicks
   useEffect(() => {
-    if (!mapRef.current) return;
+    if (!mapRef.current) return
 
     const handleClick = (e: L.LeafletMouseEvent) => {
-      onMapClick({ lat: e.latlng.lat, lng: e.latlng.lng });
-    };
+      onMapClick({ lat: e.latlng.lat, lng: e.latlng.lng })
+    }
 
-    mapRef.current.on("click", handleClick);
+    mapRef.current.on("click", handleClick)
 
     return () => {
-      mapRef.current?.off("click", handleClick);
-    };
-  }, [onMapClick]);
+      mapRef.current?.off("click", handleClick)
+    }
+  }, [onMapClick])
 
   // Update start marker
   useEffect(() => {
-    if (!mapRef.current) return;
+    if (!mapRef.current) return
 
     if (startMarkerRef.current) {
-      startMarkerRef.current.remove();
-      startMarkerRef.current = null;
+      startMarkerRef.current.remove()
+      startMarkerRef.current = null
     }
 
     if (startPoint) {
@@ -129,17 +127,17 @@ export default function MapComponent({
         icon: startIcon,
       })
         .addTo(mapRef.current)
-        .bindPopup("Start Point");
+        .bindPopup("Start Point")
     }
-  }, [startPoint]);
+  }, [startPoint])
 
   // Update end marker
   useEffect(() => {
-    if (!mapRef.current) return;
+    if (!mapRef.current) return
 
     if (endMarkerRef.current) {
-      endMarkerRef.current.remove();
-      endMarkerRef.current = null;
+      endMarkerRef.current.remove()
+      endMarkerRef.current = null
     }
 
     if (endPoint) {
@@ -147,219 +145,177 @@ export default function MapComponent({
         icon: endIcon,
       })
         .addTo(mapRef.current)
-        .bindPopup("Destination");
+        .bindPopup("Destination")
     }
-  }, [endPoint]);
+  }, [endPoint])
 
   const generateExtendedWaypoints = useCallback(
-    (
-      start: LatLng,
-      end: LatLng,
-      directDistanceKm: number,
-      targetKm: number
-    ): LatLng[] => {
+    (start: LatLng, end: LatLng, directDistanceKm: number, targetKm: number): LatLng[] => {
       // Calculate how much we need to extend the route
-      // Walking routes are typically ~1.3x direct distance as the crow flies, so we account for that
-      const estimatedRouteRatio = 1.3;
-      const currentEstimatedRouteKm = directDistanceKm * estimatedRouteRatio;
+      // Walking routes are typically ~1.3x direct distance, so we account for that
+      const estimatedRouteRatio = 1.3
+      const currentEstimatedRouteKm = directDistanceKm * estimatedRouteRatio
 
       if (targetKm <= currentEstimatedRouteKm * 1.1) {
         // Target is close to direct route, no extension needed
-        return [];
+        return []
       }
 
       // Calculate extension factor needed
-      const extensionFactor = targetKm / currentEstimatedRouteKm;
+      const extensionFactor = targetKm / currentEstimatedRouteKm
 
       // Generate waypoints in a loop pattern perpendicular to the main path
-      const waypoints: LatLng[] = [];
-      const midLat = (start.lat + end.lat) / 2;
-      const midLng = (start.lng + end.lng) / 2;
+      const waypoints: LatLng[] = []
+      const midLat = (start.lat + end.lat) / 2
+      const midLng = (start.lng + end.lng) / 2
 
       // Direction perpendicular to start-end line
-      const dx = end.lng - start.lng;
-      const dy = end.lat - start.lat;
-      const perpDx = -dy;
-      const perpDy = dx;
-      const perpLength = Math.sqrt(perpDx * perpDx + perpDy * perpDy);
+      const dx = end.lng - start.lng
+      const dy = end.lat - start.lat
+      const perpDx = -dy
+      const perpDy = dx
+      const perpLength = Math.sqrt(perpDx * perpDx + perpDy * perpDy)
 
       // Normalize perpendicular vector
-      const normPerpDx = perpDx / perpLength;
-      const normPerpDy = perpDy / perpLength;
+      const normPerpDx = perpDx / perpLength
+      const normPerpDy = perpDy / perpLength
 
       // Calculate offset distance based on how much we need to extend
       // Rough approximation: each km of offset adds ~2km to route
-      const neededExtraKm = targetKm - currentEstimatedRouteKm;
-      const offsetKm = neededExtraKm / 4; // Divide by 4 because we go out and back on both sides
+      const neededExtraKm = targetKm - currentEstimatedRouteKm
+      const offsetKm = neededExtraKm / 4 // Divide by 4 because we go out and back on both sides
 
       // Convert km to degrees (rough approximation at London latitude)
-      const kmToDegrees = 0.009; // ~1km ≈ 0.009 degrees at 51°N
-      const offsetDegrees = offsetKm * kmToDegrees;
+      const kmToDegrees = 0.009 // ~1km ≈ 0.009 degrees at 51°N
+      const offsetDegrees = offsetKm * kmToDegrees
 
       // Create a detour pattern: go to one side, then the other
       // Point 1: 25% along path, offset to one side
       waypoints.push({
-        lat:
-          start.lat + (end.lat - start.lat) * 0.25 + normPerpDy * offsetDegrees,
-        lng:
-          start.lng + (end.lng - start.lng) * 0.25 + normPerpDx * offsetDegrees,
-      });
+        lat: start.lat + (end.lat - start.lat) * 0.25 + normPerpDy * offsetDegrees,
+        lng: start.lng + (end.lng - start.lng) * 0.25 + normPerpDx * offsetDegrees,
+      })
 
       // Point 2: 50% along path, offset to other side
       waypoints.push({
         lat: midLat - normPerpDy * offsetDegrees,
         lng: midLng - normPerpDx * offsetDegrees,
-      });
+      })
 
       // Point 3: 75% along path, offset to first side again
       waypoints.push({
-        lat:
-          start.lat +
-          (end.lat - start.lat) * 0.75 +
-          normPerpDy * offsetDegrees * 0.5,
-        lng:
-          start.lng +
-          (end.lng - start.lng) * 0.75 +
-          normPerpDx * offsetDegrees * 0.5,
-      });
+        lat: start.lat + (end.lat - start.lat) * 0.75 + normPerpDy * offsetDegrees * 0.5,
+        lng: start.lng + (end.lng - start.lng) * 0.75 + normPerpDx * offsetDegrees * 0.5,
+      })
 
-      return waypoints;
+      return waypoints
     },
-    []
-  );
+    [],
+  )
 
   // Calculate route when both points are set
   const calculateRoute = useCallback(async () => {
-    if (!mapRef.current || !startPoint || !endPoint) return;
+    if (!mapRef.current || !startPoint || !endPoint) return
 
     // Clear previous route
     if (routeLayerRef.current) {
-      routeLayerRef.current.remove();
-      routeLayerRef.current = null;
+      routeLayerRef.current.remove()
+      routeLayerRef.current = null
     }
 
-    waypointMarkersRef.current.forEach((marker) => marker.remove());
-    waypointMarkersRef.current = [];
+    waypointMarkersRef.current.forEach((marker) => marker.remove())
+    waypointMarkersRef.current = []
 
-    setIsLoading(true);
+    setIsLoading(true)
 
     try {
-      const R = 6371; // Earth radius in km
-      const dLat = ((endPoint.lat - startPoint.lat) * Math.PI) / 180;
-      const dLng = ((endPoint.lng - startPoint.lng) * Math.PI) / 180;
+      const R = 6371 // Earth radius in km
+      const dLat = ((endPoint.lat - startPoint.lat) * Math.PI) / 180
+      const dLng = ((endPoint.lng - startPoint.lng) * Math.PI) / 180
       const a =
         Math.sin(dLat / 2) * Math.sin(dLat / 2) +
         Math.cos((startPoint.lat * Math.PI) / 180) *
           Math.cos((endPoint.lat * Math.PI) / 180) *
           Math.sin(dLng / 2) *
-          Math.sin(dLng / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      const directDistanceKm = R * c;
+          Math.sin(dLng / 2)
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+      const directDistanceKm = R * c
 
-      let waypoints: LatLng[] = [];
+      let waypoints: LatLng[] = []
       if (targetDistance && targetDistance > 0) {
-        waypoints = generateExtendedWaypoints(
-          startPoint,
-          endPoint,
-          directDistanceKm,
-          targetDistance
-        );
+        waypoints = generateExtendedWaypoints(startPoint, endPoint, directDistanceKm, targetDistance)
       }
 
-      let coordinatesString = `${startPoint.lng},${startPoint.lat}`;
+      let coordinatesString = `${startPoint.lng},${startPoint.lat}`
       waypoints.forEach((wp) => {
-        coordinatesString += `;${wp.lng},${wp.lat}`;
-      });
-      coordinatesString += `;${endPoint.lng},${endPoint.lat}`;
+        coordinatesString += `;${wp.lng},${wp.lat}`
+      })
+      coordinatesString += `;${endPoint.lng},${endPoint.lat}`
 
       const response = await fetch(
-        `https://router.project-osrm.org/route/v1/foot/${coordinatesString}?overview=full&geometries=geojson`
-      );
+        `https://router.project-osrm.org/route/v1/foot/${coordinatesString}?overview=full&geometries=geojson`,
+      )
 
-      if (!response.ok) throw new Error("Route calculation failed");
+      if (!response.ok) throw new Error("Route calculation failed")
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (data.routes && data.routes.length > 0) {
-        const route = data.routes[0];
+        const route = data.routes[0]
         const coordinates = route.geometry.coordinates.map(
-          (coord: [number, number]) => [coord[1], coord[0]] as L.LatLngTuple
-        );
+          (coord: [number, number]) => [coord[1], coord[0]] as L.LatLngTuple,
+        )
 
         // Draw route
         routeLayerRef.current = L.polyline(coordinates, {
           color: "#eab308",
           weight: 4,
           opacity: 0.8,
-        }).addTo(mapRef.current!);
+        }).addTo(mapRef.current!)
 
         // Fit map to route bounds
-        const bounds = routeLayerRef.current.getBounds();
-        mapRef.current!.fitBounds(bounds, { padding: [50, 50] });
+        const bounds = routeLayerRef.current.getBounds()
+        mapRef.current!.fitBounds(bounds, { padding: [50, 50] })
 
         // Calculate distance and duration
-        const distanceKm = route.distance / 1000;
-        const distanceText =
-          distanceKm < 1
-            ? `${Math.round(route.distance)} m`
-            : `${distanceKm.toFixed(2)} km`;
+        const distanceKm = route.distance / 1000
+        const distanceText = distanceKm < 1 ? `${Math.round(route.distance)} m` : `${distanceKm.toFixed(2)} km`
 
-        const paceMinPerKm = targetPace ?? 6;
-        const durationMinutes = Math.round(distanceKm * paceMinPerKm);
+        const paceMinPerKm = targetPace ?? 6
+        const durationMinutes = Math.round(distanceKm * paceMinPerKm)
         const durationText =
           durationMinutes < 60
             ? `${durationMinutes} min`
-            : `${Math.floor(durationMinutes / 60)}h ${durationMinutes % 60}min`;
+            : `${Math.floor(durationMinutes / 60)}h ${durationMinutes % 60}min`
 
         onRouteCalculated({
           distance: distanceText,
           duration: durationText,
           distanceKm: distanceKm,
-        });
+        })
       }
     } catch (error) {
-      console.error("Route calculation error:", error);
-      onRouteCalculated(null);
+      console.error("Route calculation error:", error)
+      onRouteCalculated(null)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  }, [
-    startPoint,
-    endPoint,
-    targetDistance,
-    targetPace,
-    onRouteCalculated,
-    setIsLoading,
-    generateExtendedWaypoints,
-  ]);
+  }, [startPoint, endPoint, targetDistance, targetPace, onRouteCalculated, setIsLoading, generateExtendedWaypoints])
 
   useEffect(() => {
     if (startPoint && endPoint) {
-      calculateRoute();
+      calculateRoute()
     } else {
       // Clear route when points are reset
       if (routeLayerRef.current) {
-        routeLayerRef.current.remove();
-        routeLayerRef.current = null;
+        routeLayerRef.current.remove()
+        routeLayerRef.current = null
       }
-      waypointMarkersRef.current.forEach((marker) => marker.remove());
-      waypointMarkersRef.current = [];
-      onRouteCalculated(null);
+      waypointMarkersRef.current.forEach((marker) => marker.remove())
+      waypointMarkersRef.current = []
+      onRouteCalculated(null)
     }
-  }, [
-    startPoint,
-    endPoint,
-    targetDistance,
-    targetPace,
-    calculateRoute,
-    onRouteCalculated,
-  ]);
+  }, [startPoint, endPoint, targetDistance, targetPace, calculateRoute, onRouteCalculated])
 
-  return (
-    <div
-      ref={mapContainerRef}
-      className="h-full w-full"
-      style={{ background: "#1a1a2e" }}
-    />
-  );
+  return <div ref={mapContainerRef} className="h-full w-full" style={{ background: "#1a1a2e" }} />
 }
