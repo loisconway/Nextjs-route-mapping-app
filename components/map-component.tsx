@@ -21,7 +21,6 @@ interface MapComponentProps {
   setIsLoading: (loading: boolean) => void
 }
 
-
 const createIcon = (color: string) => {
   return L.divIcon({
     className: "custom-marker",
@@ -42,7 +41,33 @@ const createIcon = (color: string) => {
 
 const startIcon = createIcon("#10b981")
 const endIcon = createIcon("#f43f5e")
-const waypointIcon = createIcon("#f59e0b")
+
+const createNumberedWaypointIcon = (number: number) => {
+  return L.divIcon({
+    className: "custom-marker",
+    html: `
+      <div style="
+        width: 28px;
+        height: 28px;
+        background: #f59e0b;
+        border: 3px solid white;
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      ">${number}</div>
+    `,
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+  })
+}
+
+const waypointIcon = createIcon("#3b82f6") // Declare waypointIcon here
 
 export default function MapComponent({
   startPoint,
@@ -167,10 +192,10 @@ export default function MapComponent({
     waypointMarkersRef.current.forEach((marker) => marker.remove())
     waypointMarkersRef.current = []
 
-    // Add new waypoint markers
+    // Add new waypoint markers with numbered icons
     waypoints.forEach((wp, index) => {
       const marker = L.marker([wp.position.lat, wp.position.lng], {
-        icon: waypointIcon,
+        icon: createNumberedWaypointIcon(index + 1),
       })
         .addTo(mapRef.current!)
         .bindPopup(`Waypoint ${index + 1}: ${wp.address}`)
@@ -259,9 +284,6 @@ export default function MapComponent({
       routeLayerRef.current.remove()
       routeLayerRef.current = null
     }
-
-    waypointMarkersRef.current.forEach((marker) => marker.remove())
-    waypointMarkersRef.current = []
 
     setIsLoading(true)
 
@@ -355,8 +377,6 @@ export default function MapComponent({
         routeLayerRef.current.remove()
         routeLayerRef.current = null
       }
-      waypointMarkersRef.current.forEach((marker) => marker.remove())
-      waypointMarkersRef.current = []
       onRouteCalculated(null)
     }
   }, [startPoint, endPoint, waypoints, targetDistance, targetPace, calculateRoute, onRouteCalculated])
