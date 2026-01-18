@@ -125,14 +125,14 @@ export default function MapComponent({
 
   // Update start marker
   useEffect(() => {
-    if (!mapRef.current) return
-
+    // Always clear existing marker first
     if (startMarkerRef.current) {
       startMarkerRef.current.remove()
       startMarkerRef.current = null
     }
 
-    if (startPoint) {
+    // Only add new marker if we have a map and a start point
+    if (mapRef.current && startPoint) {
       startMarkerRef.current = L.marker([startPoint.lat, startPoint.lng], {
         icon: startIcon,
       })
@@ -143,14 +143,14 @@ export default function MapComponent({
 
   // Update end marker
   useEffect(() => {
-    if (!mapRef.current) return
-
+    // Always clear existing marker first
     if (endMarkerRef.current) {
       endMarkerRef.current.remove()
       endMarkerRef.current = null
     }
 
-    if (endPoint) {
+    // Only add new marker if we have a map and an end point
+    if (mapRef.current && endPoint) {
       endMarkerRef.current = L.marker([endPoint.lat, endPoint.lng], {
         icon: endIcon,
       })
@@ -178,6 +178,14 @@ export default function MapComponent({
     })
   }, [waypoints])
 
+/**
+ * The current algorithm for working out the extended distance involves zig-zagging perpendicular to the route, it sometimes comes up with some very strange ideas lol
+ * Needs work generally
+ * Some ideas:
+ * - Is it possible to access strava common routes api and use this to assist? 
+ * - Start/end point the same and create a loop of certain distance 
+ * - Look into if there are existing route optimisation algorithms you could use
+ */
   const generateExtendedWaypoints = useCallback(
     (start: LatLng, end: LatLng, directDistanceKm: number, targetKm: number): LatLng[] => {
       // Calculate how much we need to extend the route
@@ -285,6 +293,8 @@ export default function MapComponent({
         coordinatesString += `;${wp.lng},${wp.lat}`
       })
       coordinatesString += `;${endPoint.lng},${endPoint.lat}`
+
+      // For route finding: https://project-osrm.org/ Modern C++ routing engine for shortest paths in road networks.
 
       const response = await fetch(
         `https://router.project-osrm.org/route/v1/foot/${coordinatesString}?overview=full&geometries=geojson`,
