@@ -5,6 +5,8 @@ import L from "leaflet"
 import "leaflet/dist/leaflet.css"
 import type { LatLng, Waypoint } from "./route-mapper"
 
+// Leaflet for maps https://leafletjs.com/examples.html
+
 interface MapComponentProps {
   startPoint: LatLng | null
   endPoint: LatLng | null
@@ -19,7 +21,7 @@ interface MapComponentProps {
   setIsLoading: (loading: boolean) => void
 }
 
-// Custom marker icons
+
 const createIcon = (color: string) => {
   return L.divIcon({
     className: "custom-marker",
@@ -59,8 +61,8 @@ export default function MapComponent({
   const startMarkerRef = useRef<L.Marker | null>(null)
   const endMarkerRef = useRef<L.Marker | null>(null)
   const routeLayerRef = useRef<L.Polyline | null>(null)
-  const waypointMarkersRef = useRef<L.Marker[]>([]) // Track waypoint markers
-  const tileLayerRef = useRef<L.TileLayer | null>(null) // Track the tile layer for switching themes
+  const waypointMarkersRef = useRef<L.Marker[]>([]) 
+  const tileLayerRef = useRef<L.TileLayer | null>(null) 
 
 
   // Initialize map
@@ -73,6 +75,8 @@ export default function MapComponent({
       zoomControl: false,
     })
 
+    // I don't love these maps, but the replacements I have found seem to take a lot longer to load.
+    // So these maps will do for now until I have the time to find a good alternative.
     const tileUrl = isDarkMode
       ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
       : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
@@ -83,7 +87,7 @@ export default function MapComponent({
       maxZoom: 19,
     }).addTo(map)
 
-    L.control.zoom({ position: "bottomright" }).addTo(map)
+    L.control.zoom({ position: "topleft" }).addTo(map)
 
     mapRef.current = map
 

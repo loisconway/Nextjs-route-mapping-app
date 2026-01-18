@@ -1,12 +1,16 @@
 # Route mapping app
 
-This route mapping application is designed to assist runners in planning routes. Sometimes you know your start and end point but you need to fit in 10km between them.
+This route mapping application is designed to assist runners in planning routes. Sometimes you know your start and end point but you need to fit in a certain distance between them.
 
 ## Idea Backlog/To do list
-- I'd like to look at if it is possible to use common strava routes in the plotting algorithm.
-- When I add way points and also specify a distance, the algorithm of calculating extra way points doesn't work very well
-- Loop routes, so just specify start/end point and itll create a loop rather than the zig zagging.
-- Drag and drop waypoints on the map
+- Drag and drop waypoints on the map.
+    I want markers for the extra waypoints when they are manually added, and I want to be able to drag these to update them.
+- Generally the route finding algorithm needs work
+    I'd like to look at if it is possible to use common strava routes in the plotting algorithm.
+    When I add way points and also specify a distance, the algorithm of calculating extra way points doesn't work very well.
+    Loop routes, so just specify start/end point and itll create a loop rather than the zig zagging.
+- I want users to be able to save their routes. With this I will also look at having user profiles and a logging in mechanism, maybe link it to strava account.
+
 
 ## Running the app locally
 
@@ -14,7 +18,7 @@ This route mapping application is designed to assist runners in planning routes.
 
 ## V0 Integration
 
-I use v0 to assist me in development. It provides assistance with code but also the main benefit I find is how easy it is to deploy and share apps.
+I use v0 to assist me in development. It provides assistance with code but also the main benefit I find is how easy it is to deploy and share apps. I try to use v0 as a peer, like I'm pair programming, to help me learn more, rather than vibe coding through all of it.
 
 _Automatically synced with your [v0.app](https://v0.app) deployments_
 
