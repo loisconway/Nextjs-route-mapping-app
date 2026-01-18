@@ -21,7 +21,7 @@ This route mapping application is designed to assist runners in planning routes.
 ## V0 Integration
 
 I use v0 to assist me in development. It provides assistance with code but also the main benefit I find is how easy it is to deploy and share apps. I try to use v0 as a peer, like I'm pair programming, to help me learn more, rather than vibe coding through all of it.
-It also allows me to log in on any machine so coding on the go can be a bit easier.
+It also allows me to log in on any machine so coding on the go can be a bit easier, like code-sandbox.
 
 _Automatically synced with your [v0.app](https://v0.app) deployments_
 
