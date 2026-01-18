@@ -3,6 +3,7 @@
 This route mapping application is designed to assist runners in planning routes. Sometimes you know your start and end point but you need to fit in a certain distance between them.
 
 ## Idea Backlog/To do list
+- A better map, I just found one that worked quickly but I dont really like it, think it's quite hard to read and see the route. So finding a better map is on the to-do list.
 - Drag and drop waypoints on the map.
     I want markers for the extra waypoints when they are manually added, and I want to be able to drag these to update them.
 - Generally the route finding algorithm needs work
