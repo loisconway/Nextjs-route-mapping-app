@@ -1,3 +1,7 @@
+/** In order to be able to get addresses of locations rather than lat/long,
+ * I use reverse Geocode to fetch the address details.
+ */
+
 export const useGeocoding = () => {
   const reverseGeocode = async (lat: number, lng: number): Promise<string> => {
     try {
