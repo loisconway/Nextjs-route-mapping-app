@@ -2,6 +2,12 @@
 
 This route mapping application is designed to assist runners in planning routes. Sometimes you know your start and end point but you need to fit in 10km between them.
 
+## Idea Backlog/To do list
+- I'd like to look at if it is possible to use common strava routes in the plotting algorithm.
+- When I add way points and also specify a distance, the algorithm of calculating extra way points doesn't work very well
+- Loop routes, so just specify start/end point and itll create a loop rather than the zig zagging.
+- Drag and drop waypoints on the map
+
 ## Running the app locally
 
 `yarn install`, `yarn build` and `yarn start` will bring the app up on localhost:3000. The current published version can be seen at https://v0-plan-my-run-route.vercel.app/.

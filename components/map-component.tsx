@@ -3,14 +3,16 @@
 import { useEffect, useRef, useCallback } from "react"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
-import type { LatLng } from "./route-mapper"
+import type { LatLng, Waypoint } from "./route-mapper"
 
 interface MapComponentProps {
   startPoint: LatLng | null
   endPoint: LatLng | null
-  targetDistance: number | null // Added target distance prop (in km)
-  targetPace: number | null // Added target pace prop
-  isDarkMode: boolean // Added isDarkMode prop
+  waypoints: Waypoint[]
+  targetDistance: number | null
+  targetPace: number | null
+  isDarkMode: boolean
+  isAddingWaypoint: boolean
   onMapClick: (latlng: LatLng) => void
   onRouteCalculated: (info: { distance: string; duration: string; distanceKm: number } | null) => void
   isLoading: boolean
@@ -38,13 +40,16 @@ const createIcon = (color: string) => {
 
 const startIcon = createIcon("#10b981")
 const endIcon = createIcon("#f43f5e")
+const waypointIcon = createIcon("#f59e0b")
 
 export default function MapComponent({
   startPoint,
   endPoint,
-  targetDistance, // Added target distance prop
-  targetPace, // Destructure target pace prop
-  isDarkMode, // Destructure isDarkMode
+  waypoints,
+  targetDistance,
+  targetPace,
+  isDarkMode,
+  isAddingWaypoint,
   onMapClick,
   onRouteCalculated,
   setIsLoading,
@@ -150,10 +155,29 @@ export default function MapComponent({
     }
   }, [endPoint])
 
+  // Update manual waypoint markers
+  useEffect(() => {
+    if (!mapRef.current) return
+
+    // Clear existing waypoint markers
+    waypointMarkersRef.current.forEach((marker) => marker.remove())
+    waypointMarkersRef.current = []
+
+    // Add new waypoint markers
+    waypoints.forEach((wp, index) => {
+      const marker = L.marker([wp.position.lat, wp.position.lng], {
+        icon: waypointIcon,
+      })
+        .addTo(mapRef.current!)
+        .bindPopup(`Waypoint ${index + 1}: ${wp.address}`)
+      waypointMarkersRef.current.push(marker)
+    })
+  }, [waypoints])
+
   const generateExtendedWaypoints = useCallback(
     (start: LatLng, end: LatLng, directDistanceKm: number, targetKm: number): LatLng[] => {
       // Calculate how much we need to extend the route
-      // Walking routes are typically ~1.3x direct distance, so we account for that
+      // Foot routes are typically ~1.3x direct distance, so we account for that
       const estimatedRouteRatio = 1.3
       const currentEstimatedRouteKm = directDistanceKm * estimatedRouteRatio
 
@@ -242,13 +266,18 @@ export default function MapComponent({
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
       const directDistanceKm = R * c
 
-      let waypoints: LatLng[] = []
+      // Combine manual waypoints with auto-generated ones for target distance
+      let allWaypoints: LatLng[] = waypoints.map((wp) => wp.position)
+
+      // If target distance is set, add generated waypoints
       if (targetDistance && targetDistance > 0) {
-        waypoints = generateExtendedWaypoints(startPoint, endPoint, directDistanceKm, targetDistance)
+        const generatedWaypoints = generateExtendedWaypoints(startPoint, endPoint, directDistanceKm, targetDistance)
+        // Insert generated waypoints between manual ones (simplified: just append)
+        allWaypoints = [...allWaypoints, ...generatedWaypoints]
       }
 
       let coordinatesString = `${startPoint.lng},${startPoint.lat}`
-      waypoints.forEach((wp) => {
+      allWaypoints.forEach((wp) => {
         coordinatesString += `;${wp.lng},${wp.lat}`
       })
       coordinatesString += `;${endPoint.lng},${endPoint.lat}`
@@ -301,7 +330,7 @@ export default function MapComponent({
     } finally {
       setIsLoading(false)
     }
-  }, [startPoint, endPoint, targetDistance, targetPace, onRouteCalculated, setIsLoading, generateExtendedWaypoints])
+  }, [startPoint, endPoint, waypoints, targetDistance, targetPace, onRouteCalculated, setIsLoading, generateExtendedWaypoints])
 
   useEffect(() => {
     if (startPoint && endPoint) {
@@ -316,7 +345,7 @@ export default function MapComponent({
       waypointMarkersRef.current = []
       onRouteCalculated(null)
     }
-  }, [startPoint, endPoint, targetDistance, targetPace, calculateRoute, onRouteCalculated])
+  }, [startPoint, endPoint, waypoints, targetDistance, targetPace, calculateRoute, onRouteCalculated])
 
   return <div ref={mapContainerRef} className="h-full w-full" style={{ background: "#1a1a2e" }} />
 }

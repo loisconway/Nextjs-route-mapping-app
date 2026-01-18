@@ -1,5 +1,7 @@
 "use client"
 
+import React from "react"
+
 import dynamic from "next/dynamic"
 import { useState, useEffect } from "react"
 import {
@@ -13,6 +15,10 @@ import {
   Moon,
   ChevronUp,
   ChevronDown,
+  Plus,
+  X,
+  CircleDot,
+  GripVertical,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -36,11 +42,19 @@ export interface LatLng {
   lng: number
 }
 
+export interface Waypoint {
+  id: string
+  position: LatLng
+  address: string
+}
+
 export default function RouteMapper() {
   const [startPoint, setStartPoint] = useState<LatLng | null>(null)
   const [endPoint, setEndPoint] = useState<LatLng | null>(null)
   const [startAddress, setStartAddress] = useState<string>("")
   const [endAddress, setEndAddress] = useState<string>("")
+  const [waypoints, setWaypoints] = useState<Waypoint[]>([])
+  const [isAddingWaypoint, setIsAddingWaypoint] = useState(false)
   const [routeInfo, setRouteInfo] = useState<{ distance: string; duration: string; distanceKm: number } | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [targetDistanceInput, setTargetDistanceInput] = useState<string>("")
@@ -50,6 +64,7 @@ export default function RouteMapper() {
   const [targetPace, setTargetPace] = useState<number | null>(null)
   const [isDarkMode, setIsDarkMode] = useState(true)
   const [isExpanded, setIsExpanded] = useState(true)
+  const [draggedWaypointId, setDraggedWaypointId] = useState<string | null>(null)
 
   useEffect(() => {
     if (isDarkMode) {
@@ -101,7 +116,58 @@ export default function RouteMapper() {
       setEndAddress("Loading...")
       const address = await reverseGeocode(latlng.lat, latlng.lng)
       setEndAddress(address)
+    } else if (isAddingWaypoint) {
+      // Add a new waypoint
+      const newWaypoint: Waypoint = {
+        id: `wp-${Date.now()}`,
+        position: latlng,
+        address: "Loading...",
+      }
+      setWaypoints((prev) => [...prev, newWaypoint])
+      setIsAddingWaypoint(false)
+
+      // Fetch address for the waypoint
+      const address = await reverseGeocode(latlng.lat, latlng.lng)
+      setWaypoints((prev) => prev.map((wp) => (wp.id === newWaypoint.id ? { ...wp, address } : wp)))
     }
+  }
+
+  const handleRemoveWaypoint = (id: string) => {
+    setWaypoints((prev) => prev.filter((wp) => wp.id !== id))
+  }
+
+  const handleDragStart = (e: React.DragEvent, id: string) => {
+    setDraggedWaypointId(id)
+    e.dataTransfer.effectAllowed = "move"
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "move"
+  }
+
+  const handleDrop = (e: React.DragEvent, targetId: string) => {
+    e.preventDefault()
+    if (!draggedWaypointId || draggedWaypointId === targetId) {
+      setDraggedWaypointId(null)
+      return
+    }
+
+    setWaypoints((prev) => {
+      const draggedIndex = prev.findIndex((wp) => wp.id === draggedWaypointId)
+      const targetIndex = prev.findIndex((wp) => wp.id === targetId)
+      if (draggedIndex === -1 || targetIndex === -1) return prev
+
+      const newWaypoints = [...prev]
+      const [draggedItem] = newWaypoints.splice(draggedIndex, 1)
+      newWaypoints.splice(targetIndex, 0, draggedItem)
+      return newWaypoints
+    })
+    setDraggedWaypointId(null)
+  }
+
+  const handleDragEnd = () => {
+    setDraggedWaypointId(null)
   }
 
   const handleReset = () => {
@@ -109,6 +175,8 @@ export default function RouteMapper() {
     setEndPoint(null)
     setStartAddress("")
     setEndAddress("")
+    setWaypoints([])
+    setIsAddingWaypoint(false)
     setRouteInfo(null)
     setTargetDistance(null)
     setTargetDistanceInput("")
@@ -166,9 +234,11 @@ export default function RouteMapper() {
       <MapComponent
         startPoint={startPoint}
         endPoint={endPoint}
+        waypoints={waypoints}
         targetDistance={targetDistance}
         targetPace={targetPace}
         isDarkMode={isDarkMode}
+        isAddingWaypoint={isAddingWaypoint}
         onMapClick={handleMapClick}
         onRouteCalculated={setRouteInfo}
         isLoading={isLoading}
@@ -272,6 +342,78 @@ export default function RouteMapper() {
                   </p>
                 </div>
               </div>
+
+              {/* Waypoints Section */}
+              {startPoint && endPoint && (
+                <div className="pt-2 border-t border-border">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <CircleDot className="w-4 h-4 text-amber-400" />
+                      <span className="text-xs text-muted-foreground">Waypoints</span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant={isAddingWaypoint ? "default" : "outline"}
+                      onClick={() => setIsAddingWaypoint(!isAddingWaypoint)}
+                      className="h-7 text-xs"
+                      disabled={isLoading}
+                    >
+                      {isAddingWaypoint ? (
+                        <>
+                          <X className="w-3 h-3 mr-1" />
+                          Cancel
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-3 h-3 mr-1" />
+                          Add
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  {isAddingWaypoint && (
+                    <p className="text-xs text-amber-400 mb-2">Click on the map to add a waypoint</p>
+                  )}
+
+                  {waypoints.length > 0 && (
+                    <div className="space-y-2 max-h-32 overflow-y-auto">
+                      {waypoints.map((wp, index) => (
+                        <div
+                          key={wp.id}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, wp.id)}
+                          onDragOver={handleDragOver}
+                          onDrop={(e) => handleDrop(e, wp.id)}
+                          onDragEnd={handleDragEnd}
+                          className={`flex items-center gap-2 bg-muted/30 rounded-md px-2 py-1.5 cursor-grab active:cursor-grabbing transition-opacity ${
+                            draggedWaypointId === wp.id ? "opacity-50" : ""
+                          }`}
+                        >
+                          <div className="text-muted-foreground flex-shrink-0">
+                            <GripVertical className="w-3.5 h-3.5" />
+                          </div>
+                          <div className="w-5 h-5 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                            <span className="text-[10px] font-medium text-amber-400">{index + 1}</span>
+                          </div>
+                          <span className="text-xs text-foreground truncate flex-1">{wp.address}</span>
+                          <button
+                            onClick={() => handleRemoveWaypoint(wp.id)}
+                            className="text-muted-foreground hover:text-rose-400 transition-colors flex-shrink-0"
+                            disabled={isLoading}
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {waypoints.length === 0 && !isAddingWaypoint && (
+                    <p className="text-xs text-muted-foreground">No waypoints added</p>
+                  )}
+                </div>
+              )}
 
               {startPoint && endPoint && (
                 <div className="pt-2 border-t border-border">
