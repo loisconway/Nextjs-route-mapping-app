@@ -35,6 +35,4 @@ Any changes you make to your deployed app will be automatically pushed to this r
 
 ## Deployment
 
-Your project is live at:
-
-**[https://vercel.com/loisconways-projects/v0-route-mapping-app](https://vercel.com/loisconways-projects/v0-route-mapping-app)**
+View app at [this link](https://plan-my-run-route.vercel.app/)
