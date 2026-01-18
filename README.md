@@ -10,6 +10,8 @@ This route mapping application is designed to assist runners in planning routes.
     When I add way points and also specify a distance, the algorithm of calculating extra way points doesn't work very well.
     Loop routes, so just specify start/end point and itll create a loop rather than the zig zagging.
 - I want users to be able to save their routes. With this I will also look at having user profiles and a logging in mechanism, maybe link it to strava account.
+- Miles/km toggle
+
 
 
 ## Running the app locally
