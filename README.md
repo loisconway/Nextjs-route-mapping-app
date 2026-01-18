@@ -14,7 +14,7 @@ This route mapping application is designed to assist runners in planning routes.
 
 ## Running the app locally
 
-`yarn install`, `yarn build` and `yarn start` will bring the app up on localhost:3000. The current published version can be seen at https://v0-plan-my-run-route.vercel.app/.
+`yarn install`, `yarn build` and `yarn start` will bring the app up on localhost:3000. The current published version can be seen at https://plan-my-run-route.vercel.app/.
 
 ## V0 Integration
 
