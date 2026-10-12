@@ -327,11 +327,11 @@ export default function MapComponent({
         )
 
         // Draw route
-        routeLayerRef.current = L.polyline(coordinates, {
-          color: "#eab308",
-          weight: 4,
-          opacity: 0.8,
-        }).addTo(mapRef.current!)
+  routeLayerRef.current = L.polyline(coordinates, {
+    color: "#00e5ff",
+    weight: 6,
+    opacity: 0.95,
+  }).addTo(mapRef.current!)
 
         // Fit map to route bounds
         const bounds = routeLayerRef.current.getBounds()
