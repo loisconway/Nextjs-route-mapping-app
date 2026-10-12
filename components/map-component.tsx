@@ -100,15 +100,11 @@ export default function MapComponent({
       zoomControl: false,
     })
 
-    // I don't love these maps, but the replacements I have found seem to take a lot longer to load.
-    // So these maps will do for now until I have the time to find a good alternative.
-    const tileUrl = isDarkMode
-      ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-      : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+    const tileUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 
     tileLayerRef.current = L.tileLayer(tileUrl, {
       attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 19,
     }).addTo(map)
 
@@ -126,9 +122,7 @@ export default function MapComponent({
   useEffect(() => {
     if (!mapRef.current || !tileLayerRef.current) return
 
-    const tileUrl = isDarkMode
-      ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-      : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+    const tileUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 
     tileLayerRef.current.setUrl(tileUrl)
   }, [isDarkMode])
@@ -319,7 +313,7 @@ export default function MapComponent({
       // For route finding: https://project-osrm.org/ Modern C++ routing engine for shortest paths in road networks.
 
       const response = await fetch(
-        `https://router.project-osrm.org/route/v1/foot/${coordinatesString}?overview=full&geometries=geojson`,
+        `https://router.project-osrm.org/route/v1/driving/${coordinatesString}?overview=full&geometries=geojson`,
       )
 
       if (!response.ok) throw new Error("Route calculation failed")
@@ -333,11 +327,11 @@ export default function MapComponent({
         )
 
         // Draw route
-        routeLayerRef.current = L.polyline(coordinates, {
-          color: "#eab308",
-          weight: 4,
-          opacity: 0.8,
-        }).addTo(mapRef.current!)
+  routeLayerRef.current = L.polyline(coordinates, {
+    color: "#00e5ff",
+    weight: 6,
+    opacity: 0.95,
+  }).addTo(mapRef.current!)
 
         // Fit map to route bounds
         const bounds = routeLayerRef.current.getBounds()
