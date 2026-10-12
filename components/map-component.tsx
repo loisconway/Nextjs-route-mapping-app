@@ -313,7 +313,7 @@ export default function MapComponent({
       // For route finding: https://project-osrm.org/ Modern C++ routing engine for shortest paths in road networks.
 
       const response = await fetch(
-        `https://router.project-osrm.org/route/v1/foot/${coordinatesString}?overview=full&geometries=geojson`,
+        `https://router.project-osrm.org/route/v1/driving/${coordinatesString}?overview=full&geometries=geojson`,
       )
 
       if (!response.ok) throw new Error("Route calculation failed")
